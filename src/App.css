@@ -21,7 +21,20 @@
 .App-intro {
   font-size: large;
 }
-
+/* .hide{
+  position: relative;
+}
+.hide > div{
+  position: absolute;
+  top: 0;
+} */
+.hide{
+  overflow: hidden;
+}
+.height{
+  height: calc(100vh - 105px);
+  
+}
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

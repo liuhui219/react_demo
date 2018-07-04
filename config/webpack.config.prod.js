@@ -12,7 +12,6 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
-
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
@@ -90,9 +89,10 @@ module.exports = {
     // for React Native Web.
     extensions: ['.web.js', '.mjs', '.js', '.json', '.web.jsx', '.jsx'],
     alias: {
-      
+
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
+      'src': path.resolve(__dirname, '../src'),
       'react-native': 'react-native-web',
     },
     plugins: [
@@ -121,7 +121,7 @@ module.exports = {
             options: {
               formatter: eslintFormatter,
               eslintPath: require.resolve('eslint'),
-              
+
             },
             loader: require.resolve('eslint-loader'),
           },
@@ -149,20 +149,57 @@ module.exports = {
             include: paths.appSrc,
             loader: require.resolve('babel-loader'),
             options: {
-              "plugins": [
-                ["import", {
-                  "libraryName": "antd",
-                  "libraryDirectory": "es",
-                  "style": 'css'
-                }] // `style: true` 会加载 less 文件
-              ],
+      			  "plugins": [
+      				["import", { "libraryName": "antd", "libraryDirectory": "es", "style": true }] // `style: true` 会加载 less 文件
+      			  ],
 
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
               compact: true,
             },
+
           },
+          {
+              test: /\.less$/,
+              use: [
+                require.resolve('style-loader'),
+                ({ resource }) => ({
+                    loader: 'css-loader',
+                    options: {
+                        importLoaders: 1,
+                        modules: /\.module\.less/.test(resource),
+                        localIdentName: '[name]__[local]___[hash:base64:5]',
+                    },
+                }),
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: {
+                    ident: 'postcss', // https://webpack.js.org/guides/migrating/#complex-options
+                        plugins: () => [
+                          require('postcss-flexbugs-fixes'),
+                          autoprefixer({
+                                browsers: [
+                              '>1%',
+                              'last 4 versions',
+                              'Firefox ESR',
+                              'not ie < 9', // React doesn't support IE8 anyway
+                            ],
+                            flexbox: 'no-2009',
+                          }),
+                    ],
+                  },
+            },
+            {
+              loader: require.resolve('less-loader'),
+
+              options: { javascriptEnabled: true,modifyVars:{
+                              "@primary-color":"#428ef2",
+                              "@border-radius-base":"2px"
+                          } }
+            },
+          ],
+        },
           // The notation here is somewhat confusing.
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.
@@ -267,6 +304,7 @@ module.exports = {
         minifyURLs: true,
       },
     }),
+
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV was set to production here.
@@ -276,6 +314,7 @@ module.exports = {
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false,
+        drop_console: true,
         // Disabled because of an issue with Uglify breaking seemingly valid code:
         // https://github.com/facebookincubator/create-react-app/issues/2376
         // Pending further investigation:
