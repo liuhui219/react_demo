@@ -41,6 +41,18 @@ class Login extends React.Component {
         return response.json();
       }).then(function(result) {
         console.log(result)
+		if(result.code == 0){
+          that.setState({
+            login:true,
+            isLogin:true
+          })
+          message.success('登录成功');
+        }else{
+          message.warning(result.message);
+          that.setState({
+            login:true
+          })
+        }
       }).catch((error) => {
         message.warning('加载失败，请刷新重试');
         that.setState({

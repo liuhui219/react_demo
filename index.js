@@ -42,24 +42,37 @@ router.get('/index', async (ctx, next) => {
 });
 
 router.post('/login', async (ctx, next) => {
+            var name = ctx.request.body.userName || '';
+			var password = ctx.request.body.password || '';
+			var userNameData = []; 
+			var passWordData = []; 
+				let sql = 'SELECT * FROM login'
+				var data = await query( sql ) 
+				try {
+					data.map(async (info,i)=>{
+						userNameData.push(info.userName);
+						passWordData.push(info.passWord);
+				 })
 
-        var name = ctx.request.body.userName || '';
-        var password = ctx.request.body.password || '';
-				ctx.request.body.code = 0;
-		    ctx.body = ctx.request.body
+				 if(!userNameData.includes(name) || !passWordData.includes(password)){
+					   ctx.request.body.code = 500;
+						 ctx.request.body.message = '账号或密码有误';
+						 ctx.body = ctx.request.body
+				 }else{
+					     ctx.request.body.code = 0; 
+						 ctx.body = ctx.request.body
+				 }
+				} catch (err) {
+
+				} 
 });
 
 router.post('/register', async (ctx, next) => {
 			var name = ctx.request.body.userName || '';
 			var password = ctx.request.body.password || '';
-			var userNameData = [];
-
-
+			var userNameData = []; 
 				let sql = 'SELECT * FROM login'
-				var data = await query( sql )
-
-
-
+				var data = await query( sql ) 
 				try {
 					data.map(async (info,i)=>{
 						userNameData.push(info.userName);
@@ -84,13 +97,7 @@ router.post('/register', async (ctx, next) => {
 				 }
 				} catch (err) {
 
-				}
-
-
-
-
-
-
+				} 
 
 });
 
