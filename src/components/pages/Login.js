@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Icon, Input, Button, Checkbox, message, Spin  } from 'antd';
 import globals from '../unit';
+import socket from '../../IM/socket';
 import md5 from 'md5';
 const FormItem = Form.Item;
 var reg = /^1[3|4|5|7|8][0-9]{9}$/;
@@ -20,6 +21,7 @@ class Login extends React.Component {
     componentDidMount(){
       globals.setCookies('data','',-1)
       globals.setCookies('isLogin','',-1)
+
     }
 
 
@@ -46,6 +48,9 @@ class Login extends React.Component {
             login:true,
             isLogin:true
           })
+          globals.setCookies('data',JSON.stringify(result),5)
+          history.push('/erp');
+          socket.socket.emit('login', result.user);
           message.success('登录成功');
         }else{
           message.warning(result.message);
@@ -102,7 +107,8 @@ class Login extends React.Component {
         },
         body: JSON.stringify({
           "userName": values.userNames,
-          "password": md5(values.newPassword)
+          "password": md5(values.newPassword),
+          "phoneNumber": values.phoneNumber
         })
       }).then(function(response) {
         return response.json();
@@ -113,7 +119,7 @@ class Login extends React.Component {
             logins:true,
             isLogin:true
           })
-          message.success('提交成功');
+          message.success('注册成功,请登录');
         }else{
           message.warning(result.message);
           that.setState({
@@ -275,14 +281,22 @@ class Login extends React.Component {
                 :
                 <div className="login-form" >
                     <div className="login-logo">
-                        <span>找回密码</span>
+                        <span>注册</span>
                     </div>
                     <Form onSubmit={this.handleSubmits}  style={{maxWidth: '300px',width: '100%'}}>
-                        <FormItem label="账号" >
+                        <FormItem label="昵称" >
                             {getFieldDecorator('userNames', {
+                                rules: [{ required: true,whitespace:true,message:'请输入昵称'}],
+                            })(
+                                <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />}  placeholder="请输入昵称" />
+                            )}
+                        </FormItem>
+
+                        <FormItem label="账号" >
+                            {getFieldDecorator('phoneNumber', {
                                 rules: [{ required: true,whitespace:true,validator:this.changeNames}],
                             })(
-                                <Input maxLength='11' prefix={<Icon type="user" style={{ fontSize: 13 }} />}  placeholder="请输入手机号" />
+                                <Input maxLength='11' prefix={<Icon type="mobile" style={{ fontSize: 13 }} />}  placeholder="请输入手机号" />
                             )}
                         </FormItem>
 
