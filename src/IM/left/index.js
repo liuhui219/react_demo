@@ -46,7 +46,7 @@ export default class left extends React.Component {
               <Avatar shape="square" size="large" icon="user" />
             </div>
             <div className="info">
-               <h3><span>{JSON.parse(globals.getCookies('data')).user}</span></h3>
+               <h3><span>辉</span></h3>
                <Icon style={{color:'#eee',fontSize:18}} type="bars" />
             </div>
          </div>
